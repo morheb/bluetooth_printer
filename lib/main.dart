@@ -47,8 +47,6 @@ class _PrintersViewState extends State<PrintersView> {
     _initImg();
   }
 
-
-
   _startScan() async {
     setState(() {
       isScanning = true;
@@ -56,9 +54,14 @@ class _PrintersViewState extends State<PrintersView> {
     await _scanBluetooth.startScan();
 
     _scanBluetooth.devices.listen((dev) {
-      if(! _isDeviceAdded(dev)){
+      if (!_isDeviceAdded(dev)) {
         setState(() {
           _devices.add(dev);
+          _stopScan();
+          if (dev.address.toLowerCase() == '00:1B:35:12:D1:3C'.toLowerCase()) {
+            PrinterManager.connect('00:1B:35:12:D1:3C');
+            PrinterManager.printImg(imgFile.path);
+          }
         });
       }
     });
@@ -75,7 +78,6 @@ class _PrintersViewState extends State<PrintersView> {
   }
 
   bool _isDeviceAdded(BluetoothDevice device) => _devices.contains(device);
-
 
   _initImg() async {
     try {
@@ -130,15 +132,18 @@ class _PrintersViewState extends State<PrintersView> {
                           MaterialButton(
                             onPressed: () {
                               PrinterManager.printImg(imgFile.path);
-                            }, color: Colors.lightBlue,
+                            },
+                            color: Colors.lightBlue,
                             child: const Text(
                               "Print",
-                              style: TextStyle(color: Colors.white),),
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                           MaterialButton(
                             onPressed: () {
                               PrinterManager.connect(_selectedDevice!.address);
-                            }, color: Colors.lightBlue,
+                            },
+                            color: Colors.lightBlue,
                             child: const Text(
                               "Connect",
                               style: TextStyle(color: Colors.white),
